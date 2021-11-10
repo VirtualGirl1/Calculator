@@ -1,13 +1,12 @@
 using System;
 using Gtk;
+using AngouriMath;
 
-namespace Calculator
-{
-    class Program
-    {
+namespace Calculator {
+    class Program {
         [STAThread]
-        public static void Main(string[] args)
-        {
+        public static void Main(string[] args) {
+
             Application.Init();
 
             var app = new Application("org.Calculator.Calculator", GLib.ApplicationFlags.None);
@@ -18,6 +17,7 @@ namespace Calculator
 
             win.Show();
             Application.Run();
+            
         }
     }
 }
