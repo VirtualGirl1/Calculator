@@ -1,3 +1,5 @@
 # Build folders
 bin/*
 obj/*
+src/bin/*
+src/obj/*
