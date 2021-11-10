@@ -1,5 +1,6 @@
 using System;
 using AngouriMath;
+using AngouriMath.Core.Exceptions;
 using Gtk;
 using UI = Gtk.Builder.ObjectAttribute;
 
@@ -63,7 +64,7 @@ namespace Calculator {
             basic._Mult.Clicked += OnMult;
             basic._Plus.Clicked += OnPlus;
             basic._Minus.Clicked += OnMinus;
-            basic._Percent.Clicked += OnPercent;
+            basic._Pi.Clicked += OnPi;
             basic._Point.Clicked += OnPoint;
             basic._LPar.Clicked += OnLPar;
             basic._RPar.Clicked += OnRPar;
@@ -186,9 +187,9 @@ namespace Calculator {
             _Calc.HasFocus = true;
         }
 
-        private void OnPercent(object sender, EventArgs args) {
+        private void OnPi(object sender, EventArgs args) {
             var ittr = _Buff.GetIterAtOffset(_Buff.CursorPosition);
-            _Buff.Insert(ref ittr, "%");
+            _Buff.Insert(ref ittr, "π");
             _Calc.HasFocus = true;
         }
 
@@ -249,26 +250,43 @@ namespace Calculator {
                 _ansCount--;
             }
 
-            string text = cleanExpr();
-            Entity expr = text;
-            var res = expr.EvalNumerical().ToString();
+            try {
 
-            var label = new Label();
-            label.UseMarkup = true;
-            label.Markup = "<span size=\"x-large\">" + _Buff.Text + "</span> =\t\t" + 
-            "<span size=\"xx-large\">" + res + "</span>";
-            label.Xalign = 0;
+                string text = cleanExpr();
+                Entity expr = text;
+                var res = expr.EvalNumerical().ToString();
+                
+
+                var label = new Label();
+                label.UseMarkup = true;
+                label.Markup = "<span size=\"x-large\">" + _Buff.Text + "</span> =\t\t" + 
+                    "<span size=\"xx-large\">" + res + "</span>";
+                label.Xalign = 0;
+                
+                _Results.Insert(label, -1);
+                _Results.ShowAll();
+                _ansCount++;
+                
+                
+            }
+            catch (ParseException) {
+                var label = new Label();
+                label.UseMarkup = true;
+                label.Markup = "<span size=\"x-large\">" + _Buff.Text +
+                    "\tMalformed Expression" + "</span>";
+                label.Xalign = 0;
+                _Results.Insert(label, -1);
+                _Results.ShowAll();
+                _ansCount++;
+            }
+
+                // Clear the buffer
+                var start = _Buff.StartIter;
+                var end = _Buff.EndIter;
+                _Buff.Delete(ref start, ref end);
+                
+                _Calc.HasFocus = true;
             
-            _Results.Insert(label, -1);
-            _Results.ShowAll();
-            _ansCount++;
-            
-            // Clear the buffer
-            var start = _Buff.StartIter;
-            var end = _Buff.EndIter;
-            _Buff.Delete(ref start, ref end);
-            
-            _Calc.HasFocus = true;
         }
 
         // parse the buffer and clean it up for datatable
@@ -293,6 +311,9 @@ namespace Calculator {
                 else if (c == '√'){
                     clean += "sqrt(";
                     openb = true;
+                }
+                else if (c == 'π') {
+                    clean += "pi";
                 }
 
                 else {
